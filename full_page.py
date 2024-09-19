@@ -9,7 +9,7 @@ nest_asyncio.apply()
 # Function to take screenshot and save the HTML content
 async def take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, user_agent=None):
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
+        browser = await p.chromium.launch(headless=True)  # Set headless=False if you want to see the browser
         page = await browser.new_page()
 
         # Set custom viewport (resolution)
@@ -58,8 +58,8 @@ html_path = 'page.html'
 # Button to trigger screenshot and HTML download
 if st.button("Capture Screenshot and Download HTML as Mobile Googlebot"):
     if url:
-        # Run the screenshot and HTML download task asynchronously
-        asyncio.run(take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, googlebot_mobile_user_agent))
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, googlebot_mobile_user_agent))
 
         # Show success message
         st.success(f"Screenshot saved as {screenshot_path} and HTML saved as {html_path}")
