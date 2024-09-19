@@ -1,2 +1,3 @@
 streamlit
 pyppeteer
+nest_asyncio
