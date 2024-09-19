@@ -1,6 +1,10 @@
 import asyncio
 import streamlit as st
+import nest_asyncio
 from pyppeteer import launch
+
+# Allow nested asyncio event loops
+nest_asyncio.apply()
 
 # Function to take screenshot and save the HTML content
 async def take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, user_agent=None):
