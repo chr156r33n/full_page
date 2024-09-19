@@ -1,39 +1,39 @@
 import asyncio
 import streamlit as st
 import nest_asyncio
-from pyppeteer import launch
+from playwright.async_api import async_playwright
 
 # Allow nested asyncio event loops
 nest_asyncio.apply()
 
 # Function to take screenshot and save the HTML content
 async def take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, user_agent=None):
-    # Launch headless browser
-    browser = await launch()
-    page = await browser.newPage()
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
 
-    # Set custom viewport (resolution)
-    await page.setViewport({'width': width, 'height': height})
+        # Set custom viewport (resolution)
+        await page.set_viewport_size({'width': width, 'height': height})
 
-    # Optionally set user-agent if provided
-    if user_agent:
-        await page.setUserAgent(user_agent)
+        # Optionally set user-agent if provided
+        if user_agent:
+            await page.set_user_agent(user_agent)
 
-    # Navigate to the provided URL
-    await page.goto(url)
+        # Navigate to the provided URL
+        await page.goto(url)
 
-    # Get the HTML content of the page
-    html_content = await page.content()
+        # Get the HTML content of the page
+        html_content = await page.content()
 
-    # Save the HTML to a file
-    with open(html_path, 'w', encoding='utf-8') as f:
-        f.write(html_content)
+        # Save the HTML to a file
+        with open(html_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
 
-    # Take full-page screenshot
-    await page.screenshot({'path': screenshot_path, 'fullPage': True})
+        # Take full-page screenshot
+        await page.screenshot({'path': screenshot_path, 'full_page': True})
 
-    # Close the browser
-    await browser.close()
+        # Close the browser
+        await browser.close()
 
 # Streamlit UI
 st.title("Mobile Googlebot Screenshot & HTML Downloader")
