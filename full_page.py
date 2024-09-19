@@ -1,39 +1,38 @@
-import asyncio
+from playwright.sync_api import sync_playwright
 import streamlit as st
 import nest_asyncio
-from playwright.async_api import async_playwright
 
 # Allow nested asyncio event loops
 nest_asyncio.apply()
 
 # Function to take screenshot and save the HTML content
-async def take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, user_agent=None):
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)  # Set headless=False if you want to see the browser
-        page = await browser.new_page()
+def take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, user_agent=None):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)  # Set headless=False if you want to see the browser
+        page = browser.new_page()
 
         # Set custom viewport (resolution)
-        await page.set_viewport_size({'width': width, 'height': height})
+        page.set_viewport_size({'width': width, 'height': height})
 
         # Optionally set user-agent if provided
         if user_agent:
-            await page.set_user_agent(user_agent)
+            page.set_user_agent(user_agent)
 
         # Navigate to the provided URL
-        await page.goto(url)
+        page.goto(url)
 
         # Get the HTML content of the page
-        html_content = await page.content()
+        html_content = page.content()
 
         # Save the HTML to a file
         with open(html_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
 
         # Take full-page screenshot
-        await page.screenshot({'path': screenshot_path, 'full_page': True})
+        page.screenshot({'path': screenshot_path, 'full_page': True})
 
         # Close the browser
-        await browser.close()
+        browser.close()
 
 # Streamlit UI
 st.title("Mobile Googlebot Screenshot & HTML Downloader")
@@ -58,22 +57,13 @@ html_path = 'page.html'
 # Button to trigger screenshot and HTML download
 if st.button("Capture Screenshot and Download HTML as Mobile Googlebot"):
     if url:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, googlebot_mobile_user_agent))
-
-        # Show success message
-        st.success(f"Screenshot saved as {screenshot_path} and HTML saved as {html_path}")
-
-        # Display screenshot
-        st.image(screenshot_path)
-
-        # Provide download link for HTML file
-        with open(html_path, "rb") as file:
-            st.download_button(
-                label="Download HTML",
-                data=file,
-                file_name="page.html",
-                mime="text/html"
-            )
+        try:
+            take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, googlebot_mobile_user_agent)
+            st.success(f"Screenshot saved as {screenshot_path} and HTML saved as {html_path}")
+            st.image(screenshot_path)
+            with open(html_path, "rb") as file:
+                st.download_button(label="Download HTML", data=file, file_name="page.html", mime="text/html")
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
     else:
         st.error("Please enter a valid URL.")
