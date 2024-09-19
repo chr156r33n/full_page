@@ -1,3 +1,2 @@
 streamlit
-playwright
-nest_asyncio
+selenium
