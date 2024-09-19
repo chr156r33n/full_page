@@ -55,19 +55,17 @@ html_path = 'page.html'
 if st.button("Capture Screenshot and Download HTML as Mobile Googlebot"):
     if url:
         # Run the screenshot and HTML download task asynchronously
-        asyncio.get_event_loop().run_until_complete(
-            take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, googlebot_mobile_user_agent)
-        )
-        
+        asyncio.run(take_screenshot_and_save_html(url, width, height, screenshot_path, html_path, googlebot_mobile_user_agent))
+
         # Show success message
         st.success(f"Screenshot saved as {screenshot_path} and HTML saved as {html_path}")
-        
+
         # Display screenshot
         st.image(screenshot_path)
 
         # Provide download link for HTML file
         with open(html_path, "rb") as file:
-            btn = st.download_button(
+            st.download_button(
                 label="Download HTML",
                 data=file,
                 file_name="page.html",
